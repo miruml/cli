@@ -19,17 +19,26 @@ warn() { echo "${YELLOW}Warning:${NC} $1"; }
 error() { echo "${RED}Error:${NC} $1"; exit 1; }
 
 # Check if command exists
-command_exists() { command -v "$1" >/dev/null 2>&1; }
+command_exists() { 
+    command -v "$1" >/dev/null 2>&1
+}
 
 # Verify SHA256 checksum
 verify_checksum() {
     file=$1
     expected_checksum=$2
-    
+
     if command_exists sha256sum; then
-        echo "$expected_checksum $file" | sha256sum -c >/dev/null 2>&1
+        # use printf here for precise control over the spaces since sha256sum requires exactly two spaces in between the checksum and the file
+        printf "%s  %s\n" "$expected_checksum" "$file" | sha256sum -c >/dev/null 2>&1 || {
+            warn "Checksum verification failed using sha256sum"
+            return 1
+        }
     elif command_exists shasum; then
-        echo "$expected_checksum $file" | shasum -a 256 -c >/dev/null 2>&1
+        printf "%s  %s\n" "$expected_checksum" "$file" | shasum -a 256 -c >/dev/null 2>&1 || {
+            warn "Checksum verification failed using shasum"
+            return 1
+        }
     else
         warn "Could not verify checksum: no sha256sum or shasum command found"
         return 0
@@ -135,6 +144,7 @@ download_with_progress "$URL" "$TMP_DIR/${BINARY_NAME}.tar.gz" ||
 if curl -fsSL "$CHECKSUM_URL" -o "$TMP_DIR/checksums.txt" 2>/dev/null; then
     log "Verifying checksum..."
     EXPECTED_CHECKSUM=$(grep "cli_${OS}_${ARCH}.tar.gz" "$TMP_DIR/checksums.txt" | cut -d ' ' -f 1)
+    echo "$EXPECTED_CHECKSUM"
     if [ -n "$EXPECTED_CHECKSUM" ]; then
         verify_checksum "$TMP_DIR/${BINARY_NAME}.tar.gz" "$EXPECTED_CHECKSUM" ||
             error "Checksum verification failed"
