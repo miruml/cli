@@ -55,3 +55,23 @@ miru --help
 - The script requires `curl`, `tar`, `grep`, and `cut` to be installed
 - Sudo privileges may be required for installation
 - The default installation directory is `/usr/local/bin` (or `/opt/homebrew/bin` for Apple Silicon Macs)
+
+## Uninstallation
+
+### If installed via script
+Remove the binary from your system:
+```bash
+sudo rm "$(which miru)"
+```
+
+### If installed via Homebrew
+Uninstall using Homebrew:
+```bash
+brew uninstall miru
+```
+
+### Additional Cleanup
+To remove any remaining configuration files:
+```bash
+rm -rf ~/.miru
+```

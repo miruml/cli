@@ -158,7 +158,7 @@ fi
 # Extract archive
 log "Extracting..."
 tar -xzf "$TMP_DIR/${BINARY_NAME}.tar.gz" -C "$TMP_DIR" || 
-    error "Failed to extract archive"
+    error "Failed to extract archivehelp"
 
 # Install binary
 log "Installing ${BINARY_NAME} CLI..."
@@ -170,7 +170,6 @@ $SUDO chmod +x "${INSTALL_DIR}/${BINARY_NAME}" ||
 # Verify installation
 if command_exists ${BINARY_NAME}; then
     log "${BINARY_NAME} CLI ${VERSION} installed successfully to ${INSTALL_DIR}/${BINARY_NAME}"
-    log "Run '${BINARY_NAME} --help' to get started"
 else
     error "Installation completed, but ${BINARY_NAME} command not found. Please check your PATH"
 fi
