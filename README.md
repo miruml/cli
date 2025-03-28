@@ -34,7 +34,7 @@ sh install.sh
 If you prefer using Homebrew, you can install Miru CLI with:
 
 ```bash
-brew install miru
+brew install miruml/cli/miru
 ```
 
 ## Supported Platforms
