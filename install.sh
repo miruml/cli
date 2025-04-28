@@ -130,8 +130,8 @@ trap 'rm -rf "$TMP_DIR"' EXIT
 
 # Add as helper function
 download_with_progress() {
-    local url="$1"
-    local output="$2"
+    url="$1"
+    output="$2"
     curl -#fL "$url" -o "$output"
 }
 
