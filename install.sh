@@ -121,8 +121,6 @@ esac
 URL="https://github.com/${GITHUB_REPO}/releases/download/${VERSION}/cli_${OS}_${ARCH}.tar.gz"
 VERSION_WO_V=$(echo $VERSION | cut -d 'v' -f 2)
 CHECKSUM_URL="https://github.com/${GITHUB_REPO}/releases/download/${VERSION}/cli_${VERSION_WO_V}_checksums.txt"
-echo $URL
-echo $CHECKSUM_URL
 
 # Create temporary directory
 TMP_DIR=$(mktemp -d) || error "Failed to create temporary directory"
@@ -144,7 +142,6 @@ download_with_progress "$URL" "$TMP_DIR/${BINARY_NAME}.tar.gz" ||
 if curl -fsSL "$CHECKSUM_URL" -o "$TMP_DIR/checksums.txt" 2>/dev/null; then
     log "Verifying checksum..."
     EXPECTED_CHECKSUM=$(grep "cli_${OS}_${ARCH}.tar.gz" "$TMP_DIR/checksums.txt" | cut -d ' ' -f 1)
-    echo "$EXPECTED_CHECKSUM"
     if [ -n "$EXPECTED_CHECKSUM" ]; then
         verify_checksum "$TMP_DIR/${BINARY_NAME}.tar.gz" "$EXPECTED_CHECKSUM" ||
             error "Checksum verification failed"
