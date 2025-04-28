@@ -72,8 +72,8 @@ ARCH=$(uname -m)
 if is_macos; then
     # Check minimum macOS version
     MACOS_VERSION=$(sw_vers -productVersion)
-    if [ "$(echo $MACOS_VERSION | cut -d. -f1)" -lt 11 ] && \
-       [ "$(echo $MACOS_VERSION | cut -d. -f2)" -lt 15 ]; then
+    if [ "$(echo "$MACOS_VERSION" | cut -d. -f1)" -lt 11 ] && \
+       [ "$(echo "$MACOS_VERSION" | cut -d. -f2)" -lt 15 ]; then
         error "macOS version $MACOS_VERSION is not supported. Please upgrade to macOS 10.15 or newer."
     fi
 
@@ -118,8 +118,8 @@ case $OS in
     *) error "Unsupported operating system: $OS" ;;
 esac
 
+VERSION_WO_V=$(echo "$VERSION" | cut -d 'v' -f 2)
 URL="https://github.com/${GITHUB_REPO}/releases/download/${VERSION}/cli_${OS}_${ARCH}.tar.gz"
-VERSION_WO_V=$(echo $VERSION | cut -d 'v' -f 2)
 CHECKSUM_URL="https://github.com/${GITHUB_REPO}/releases/download/${VERSION}/cli_${VERSION_WO_V}_checksums.txt"
 
 # Create temporary directory
@@ -155,7 +155,7 @@ fi
 # Extract archive
 log "Extracting..."
 tar -xzf "$TMP_DIR/${BINARY_NAME}.tar.gz" -C "$TMP_DIR" || 
-    error "Failed to extract archivehelp"
+    error "Failed to extract archive"
 
 # Install binary
 log "Installing ${BINARY_NAME} CLI..."
