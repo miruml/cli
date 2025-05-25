@@ -1,22 +1,45 @@
 #!/bin/sh
 set -e
 
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+# Helper functions
+debug() { echo "${BLUE}==>${NC} $1"; }
+log() { echo "${GREEN}==>${NC} $1"; }
+warn() { echo "${YELLOW}Warning:${NC} $1"; }
+error() { echo "${RED}Error:${NC} $1"; exit 1; }
+
+# Debug flag
+DEBUG=false
+for arg in "$@"; do
+    case $arg in
+        --debug) DEBUG=true;;
+        --debug=*) DEBUG="${arg#*=}";;
+    esac
+done
+
+# Prerelease flag
+PRERELEASE=false
+for arg in "$@"; do
+    case $arg in
+        --prerelease) PRERELEASE=true;;
+        --prerelease=*) PRERELEASE="${arg#*=}";;
+    esac
+done
+if [ "$DEBUG" = "true" ]; then
+    debug "Prerelease flag: $PRERELEASE (should be 'true' or 'false')"
+fi
+
 # Configuration
 BINARY_NAME="miru"
 GITHUB_REPO="miruml/cli"
 INSTALL_DIR="/usr/local/bin"
 SUDO=""
-
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
-
-# Helper functions
-log() { echo "${GREEN}==>${NC} $1"; }
-warn() { echo "${YELLOW}Warning:${NC} $1"; }
-error() { echo "${RED}Error:${NC} $1"; exit 1; }
 
 # Check if command exists
 command_exists() { 
@@ -92,9 +115,15 @@ if is_macos; then
 fi
 
 # Get latest version
-log "Fetching latest version..."
-VERSION=$(curl -sL "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | 
-    grep "tag_name" | cut -d '"' -f 4) || error "Failed to fetch latest version"
+if [ "$PRERELEASE" = "true" ]; then
+    log "Fetching latest pre-release version..."
+    VERSION=$(curl -sL "https://api.github.com/repos/${GITHUB_REPO}/releases" | 
+        jq -r '.[] | select(.prerelease==true) | .tag_name' | head -n 1) || error "Failed to fetch latest pre-release version"
+else 
+    log "Fetching latest stable version..."
+    VERSION=$(curl -sL "https://api.github.com/repos/${GITHUB_REPO}/releases/latest" | 
+        grep "tag_name" | cut -d '"' -f 4) || error "Failed to fetch latest version"
+fi
 
 [ -z "$VERSION" ] && error "Could not determine latest version"
 log "Latest version: ${VERSION}"
